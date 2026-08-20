@@ -10,6 +10,7 @@ import { Sparkles as SparklesIcon } from "lucide-react";
 // Assets
 import bgImg from "../../assets/background .jpeg";
 import logoImg from "../../assets/logo.png";
+import Navbar from "../navbar/Navbar"
 
 function GlitterCanvas({ canvasRef, opacity }) {
   useEffect(() => {
@@ -376,6 +377,8 @@ export default function Hero({ scrollYProgress }) {
 
   return (
     <>
+  {/* Glassmorphic Navbar present across all nested routes */}
+      <Navbar />
       {/* ---- Fixed curtain background (z-0), fades out leaving the gallery ---- */}
       <motion.div style={{ opacity: heroFade }} className="fixed inset-0 z-0">
         <div

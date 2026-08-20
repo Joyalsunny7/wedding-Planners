@@ -1,188 +1,104 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../../../api/axios';
 
-export default function OTP() {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [message, setMessage] = useState('');
+export default function OtpFlipPage({ onVerifySuccess, onBack }) {
+  const [otp, setOtp] = useState(['', '', '', '']);
   const inputRefs = useRef([]);
-  const navigate = useNavigate();
 
-  // Handle digit input & auto-focus next input
-  const handleChange = (index, value) => {
-    if (isNaN(value)) return;
+  const handleChange = (element, index) => {
+    if (isNaN(element.value)) return;
 
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1); // Take last entered char
+    let newOtp = [...otp];
+    newOtp[index] = element.value;
     setOtp(newOtp);
 
-    // Auto focus next box
-    if (value && index < 5) {
+    // Focus next input
+    if (element.value && index < 3) {
       inputRefs.current[index + 1].focus();
     }
   };
 
-  // Handle Backspace navigation
-  const handleKeyDown = (index, e) => {
+  const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
-  // Handle Paste
-  const handlePaste = (e) => {
+  const handleVerify = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').trim().slice(0, 6);
-    if (!/^\d+$/.test(pastedData)) return;
-
-    const newOtp = [...otp];
-    pastedData.split('').forEach((char, idx) => {
-      newOtp[idx] = char;
-    });
-    setOtp(newOtp);
-
-    const nextFocusIndex = Math.min(pastedData.length, 5);
-    inputRefs.current[nextFocusIndex]?.focus();
-  };
-
-  // Verify OTP Submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setMessage('');
-    
-    const otpString = otp.join('');
-    if (otpString.length < 6) {
-      setError('Please enter all 6 digits');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const email = localStorage.getItem('pending_email'); // Or retrieve from state/location
-      const response = await API.post('/auth/verify-otp', { email, otp: otpString });
-
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.removeItem('pending_email');
-      }
-
-      navigate('/');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid or expired OTP code');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Resend OTP Action
-  const handleResend = async () => {
-    setError('');
-    setMessage('');
-    setResending(true);
-
-    try {
-      const email = localStorage.getItem('pending_email');
-      await API.post('/auth/resend-otp', { email });
-      setMessage('A new OTP has been sent to your email.');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to resend OTP');
-    } finally {
-      setResending(false);
+    const enteredOtp = otp.join('');
+    if (enteredOtp.length === 4) {
+      onVerifySuccess(enteredOtp);
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0a0a0c] flex items-center justify-center p-4 overflow-hidden">
-      {/* Imperial Gold & Crimson Glowing Ambient Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-amber-600/20 rounded-full blur-[120px] pointer-events-none animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-red-900/15 rounded-full blur-[140px] pointer-events-none animate-pulse" />
+    <div className="min-h-screen bg-stone-950 flex items-center justify-center p-4">
+      {/* Outer book wrapper providing the 3D perspective shadow */}
+      <div className="w-full max-w-md bg-stone-900 border border-stone-800/80 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] p-8 relative overflow-hidden transition-all duration-700 transform rotate-y-0">
+        
+        {/* Subtle decorative light gold corner flourishes or borders */}
+        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#F1E5AC]/40 to-transparent"></div>
 
-      {/* Main Card Container */}
-      <div className="w-full max-w-md z-10 my-8">
-        <form
-          onSubmit={handleSubmit}
-          className={`bg-[#121216]/95 backdrop-blur-2xl p-8 rounded-2xl border border-amber-500/30 shadow-[0_0_50px_rgba(217,119,6,0.15)] transition-all duration-300 ${
-            error ? 'animate-bounce' : ''
-          }`}
-        >
-          {/* Header */}
-          <div className="text-center mb-6">
-            <div className="inline-block p-2 rounded-full border border-amber-500/20 bg-amber-500/5 mb-3">
-              <span className="text-amber-400 text-lg">🐉</span>
-            </div>
-            <h2 className="text-2xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 uppercase">
-              Verify OTP
-            </h2>
-            <div className="h-0.5 w-12 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto my-2" />
-            <p className="text-xs text-amber-100/60 font-light tracking-wide">
-              Enter the 6-digit code sent to your email
-            </p>
-          </div>
+        {/* Page Header Indicator */}
+        <div className="text-center mb-8">
+          <span className="font-serif font-bold text-[#F1E5AC] tracking-[0.25em] text-[9px] md:text-xs uppercase">
+            Step III — Verification
+          </span>
+          <h2 className="font-serif text-2xl md:text-3xl text-stone-100 mt-2">Enter Security Code</h2>
+          <p className="text-stone-400 text-xs mt-2">
+            Please enter the 4-digit verification code sent to your device.
+          </p>
+          <div className="w-12 h-[1px] bg-[#F1E5AC]/40 mx-auto mt-4"></div>
+        </div>
 
-          {/* Messages */}
-          {error && (
-            <div className="mb-4 bg-red-950/40 border border-red-500/50 rounded-lg p-2.5 text-red-400 text-xs text-center font-medium shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-              {error}
-            </div>
-          )}
-          {message && (
-            <div className="mb-4 bg-amber-500/10 border border-amber-500/40 rounded-lg p-2.5 text-amber-300 text-xs text-center font-medium shadow-[0_0_15px_rgba(217,119,6,0.2)]">
-              {message}
-            </div>
-          )}
-
-          {/* 6 Digit Inputs */}
-          <div className="flex justify-between gap-2 mb-6" onPaste={handlePaste}>
-            {otp.map((digit, index) => (
+        {/* OTP Input Form */}
+        <form onSubmit={handleVerify} className="space-y-6">
+          <div className="flex justify-center gap-3 sm:gap-4">
+            {otp.map((data, index) => (
               <input
                 key={index}
                 type="text"
-                inputMode="numeric"
-                maxLength={1}
-                ref={(el) => (inputRefs.current[index] = el)}
-                value={digit}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-12 h-12 text-center text-xl font-bold rounded-lg bg-[#070709] text-amber-300 border border-amber-500/20 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:outline-none transition-all duration-200 shadow-inner"
-                required
+                maxLength="1"
+                ref={el => (inputRefs.current[index] = el)}
+                value={data}
+                onChange={e => handleChange(e.target, index)}
+                onKeyDown={e => handleKeyDown(e, index)}
+                className="w-12 h-14 sm:w-14 sm:h-16 text-center text-xl font-serif text-[#F1E5AC] bg-stone-950 border border-stone-800 rounded focus:border-[#F1E5AC] focus:outline-none focus:ring-1 focus:ring-[#F1E5AC] transition-all"
               />
             ))}
           </div>
 
-          {/* Gold Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-zinc-950 font-bold py-2.5 rounded-lg text-sm tracking-wider uppercase transition-all duration-300 shadow-[0_0_20px_rgba(217,119,6,0.3)] flex items-center justify-center active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              'Verify Code'
-            )}
-          </button>
+          <div className="space-y-3 pt-2">
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#F1E5AC] text-stone-950 font-serif text-xs tracking-[0.2em] uppercase hover:bg-[#e6d58c] transition duration-200 shadow-lg"
+            >
+              Verify & Proceed
+            </button>
 
-          {/* Resend Action */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-zinc-400">
-              Didn't receive the code?{' '}
+            <div className="flex justify-between items-center text-xs text-stone-400 pt-2">
               <button
                 type="button"
-                onClick={handleResend}
-                disabled={resending}
-                className="text-amber-400 hover:text-amber-300 font-semibold underline underline-offset-4 ml-1 transition-colors disabled:opacity-50"
+                onClick={onBack}
+                className="hover:text-[#F1E5AC] transition uppercase tracking-wider font-serif"
               >
-                {resending ? 'Sending...' : 'Resend OTP'}
+                ← Back
               </button>
-            </p>
+              <button
+                type="button"
+                onClick={() => alert("Resend OTP clicked")}
+                className="hover:text-[#F1E5AC] transition underline decoration-stone-700"
+              >
+                Resend Code
+              </button>
+            </div>
           </div>
         </form>
+
+        {/* Footer page number indicator */}
+        <div className="text-center mt-8 pt-4 border-t border-stone-800/50">
+          <span className="text-[10px] font-serif text-stone-600 tracking-widest">- III -</span>
+        </div>
       </div>
     </div>
   );

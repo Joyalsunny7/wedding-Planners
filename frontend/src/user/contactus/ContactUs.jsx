@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import API from "../../api/axios"; // Import your Axios instance helper
+import Navbar from '../navbar/Navbar'; // <-- Added Navbar import
 import orderBg from "../../assets/orderBg.png";
 
 const SKSWeddingPlanners = () => {
@@ -68,6 +69,9 @@ const SKSWeddingPlanners = () => {
 
   return (
     <div className="relative min-h-screen">
+      {/* Glassmorphic Navbar present across all nested routes */}
+      <Navbar />
+
       {/* Repeating Damask Background Layer */}
       <div 
         className="fixed inset-0 bg-repeat bg-center opacity-30 pointer-events-none z-0"
@@ -310,6 +314,7 @@ const styles = {
     zIndex: 10,
     minHeight: '100vh',
     padding: '40px 20px',
+    paddingTop: '80px', // Added top padding so content doesn't hide behind fixed navbar
     fontFamily: "'Segoe UI', Roboto, sans-serif"
   },
   header: {

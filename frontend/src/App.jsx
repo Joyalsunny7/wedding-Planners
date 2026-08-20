@@ -7,7 +7,7 @@ import Login from "./user/authpage/login/Login";
 import Register from "./user/authpage/register/Register"; 
 import OTP from "./user/authpage/otp/OTP";
 import BookCover from "./user/authpage/bookcover/BookCover";
-
+import About from "./user/homepage/About"
 function LoginWrapper() {
   const navigate = useNavigate();
 
@@ -42,6 +42,8 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/order" element={<OrderForm />} />
         <Route path="/contact" element={<ContactUs />} />
+        <Route path="/about" element={<About />} />
+        
         
         {/* Added /bookcover as an explicit route for closing the book */}
         <Route path="/bookcover" element={<BookCover />} />

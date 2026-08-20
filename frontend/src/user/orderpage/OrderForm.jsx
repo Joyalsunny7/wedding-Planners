@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import API from "../../api/axios"; // Path to your Axios helper instance
+import Navbar from "../navbar/Navbar"; // <-- Added Navbar import
 import orderBg from "../../assets/orderBg.png";
 
 export default function OrderForm({ user }) {
@@ -54,7 +55,8 @@ export default function OrderForm({ user }) {
     } catch (err) {
       console.error("Order submit error:", err);
       setErrorMsg(
-        err.response?.data?.message || "Failed to submit request. Please try again."
+        err.response?.data?.message ||
+          "Failed to submit request. Please try again."
       );
     } finally {
       setLoading(false);
@@ -62,13 +64,16 @@ export default function OrderForm({ user }) {
   };
 
   return (
-    <div className="relative min-h-screen text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-stone-950">
+    <div className="relative min-h-screen text-white flex items-center justify-center pt-24 pb-12 px-4 sm:px-6 lg:px-8 bg-stone-950">
+      {/* Glassmorphic Navbar present across all nested routes */}
+      <Navbar />
+
       {/* Repeating Damask Background Layer */}
-      <div 
+      <div
         className="fixed inset-0 bg-repeat bg-center opacity-30 pointer-events-none z-0"
-        style={{ 
+        style={{
           backgroundImage: `url(${orderBg})`,
-          backgroundSize: '400px'
+          backgroundSize: "400px",
         }}
       />
 
