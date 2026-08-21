@@ -15,17 +15,16 @@ import {
   Users,
   Sparkles,
   CheckCircle2,
-  ArrowRight,
   Compass,
   Smile,
   ShieldCheck,
-  Star,
 } from "lucide-react";
 
 // Assets
 import aboutBg from "../../assets/about.jpg";
 import sujeeshImg from "../../assets/Sujeesh.jpeg";
 import { Link } from "react-router-dom";
+import Navbar from "../navbar/Navbar";
 
 /* ------------------------------------------------------------
  * 3D UPSIDE-DOWN HALF-SPHERICAL BOWL CHANDELIER CANVAS COMPONENT
@@ -90,22 +89,18 @@ function TopTubeChandelier() {
       const maxDip = height * 0.65; // Max depth at center tip
 
       for (let i = 0; i < COUNT; i++) {
-        // Uniform distribution over a circular disc footprint (3D Hemisphere Projection)
         const rNorm = Math.sqrt(Math.random()); // Radial distance from center (0 to 1)
         const theta = Math.random() * Math.PI * 2; // Angle around circle
 
         const x3D = Math.cos(theta) * rNorm * sphereRadiusX;
         const z3D = Math.sin(theta) * rNorm * sphereRadiusZ;
 
-        // Upside-down hemisphere bowl depth equation:
-        // Center (rNorm = 0) dips lowest; outer rim (rNorm = 1) stays highest near ceiling
         const domeCurvature = Math.sqrt(Math.max(0, 1 - rNorm * rNorm));
         const targetY = ceilingY + (1 - domeCurvature * 0.82) * maxDip;
 
         const jitterX = (Math.random() - 0.5) * 4;
         const jitterY = (Math.random() - 0.5) * 8;
 
-        // Color allocation (45% Silver, 40% Gold, 15% Champagne)
         const colorType =
           Math.random() < 0.45
             ? "silver"
@@ -113,7 +108,6 @@ function TopTubeChandelier() {
               ? "gold"
               : "champagne";
 
-        // 3D Perspective Scaling Factor
         const perspective = 600;
         const scale3D = perspective / (perspective + z3D);
 
@@ -125,12 +119,8 @@ function TopTubeChandelier() {
           z3D,
           scale3D,
           colorType,
-
-          // Physics wave variables
           waveOffsetY: 0,
           waveVelocity: 0,
-
-          // Slender metallic wire dimensions
           tubeWidth: (2.8 + Math.random() * 2.2) * scale3D,
           tubeLength: (20 + Math.random() * 16) * scale3D,
           alpha: Math.min(
@@ -140,20 +130,17 @@ function TopTubeChandelier() {
         });
       }
 
-      // Sort array by Z-depth for 3D render ordering
       tubes.sort((a, b) => b.z3D - a.z3D);
     };
 
     initTubes();
 
-    // Render Metallic Cylinder Tube (Gold / Silver / Champagne)
     const drawMetallicTube = (context, w, h, type) => {
       context.save();
 
       const rx = w / 2;
       const ry = w / 3.5;
 
-      // 1. Cylinder Body
       context.beginPath();
       context.moveTo(-rx, 0);
       context.lineTo(-rx, h);
@@ -161,23 +148,21 @@ function TopTubeChandelier() {
       context.lineTo(rx, 0);
       context.closePath();
 
-      // Silky Metallic Linear Gradients
       const grad = context.createLinearGradient(-rx, 0, rx, 0);
 
       if (type === "gold") {
         grad.addColorStop(0.0, "#A87E22");
         grad.addColorStop(0.25, "#FAF3B2");
-        grad.addColorStop(0.5, "#FFFFFF"); // Specular sheen
+        grad.addColorStop(0.5, "#FFFFFF");
         grad.addColorStop(0.75, "#D4AF37");
         grad.addColorStop(1.0, "#7A5C16");
       } else if (type === "silver") {
         grad.addColorStop(0.0, "#6C7378");
         grad.addColorStop(0.25, "#E2E7EC");
-        grad.addColorStop(0.5, "#FFFFFF"); // Specular sheen
+        grad.addColorStop(0.5, "#FFFFFF");
         grad.addColorStop(0.75, "#949CA2");
         grad.addColorStop(1.0, "#454A4E");
       } else {
-        // Champagne Gold/Silver blend
         grad.addColorStop(0.0, "#94856E");
         grad.addColorStop(0.25, "#F1E2D3");
         grad.addColorStop(0.5, "#FFFFFF");
@@ -192,13 +177,11 @@ function TopTubeChandelier() {
       context.lineWidth = 0.5;
       context.stroke();
 
-      // 2. Top Rim Highlight
       context.beginPath();
       context.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
       context.fillStyle = type === "gold" ? "#FFF8CE" : "#FFFFFF";
       context.fill();
 
-      // 3. Bottom Cap Edge
       context.beginPath();
       context.ellipse(0, h, rx, ry, 0, 0, Math.PI);
       context.strokeStyle = "rgba(20, 20, 20, 0.55)";
@@ -214,7 +197,6 @@ function TopTubeChandelier() {
       time += 0.035;
       ctx.clearRect(0, 0, width, height);
 
-      // --- SILKY LIQUID WAVE PHYSICS ---
       for (let i = 0; i < tubes.length; i++) {
         const t = tubes[i];
 
@@ -231,7 +213,6 @@ function TopTubeChandelier() {
           t.waveVelocity += (mouse.vy >= 0 ? 1 : -1) * force;
         }
 
-        // Ripple dispersion across neighbors
         if (i > 0) {
           const prev = tubes[i - 1];
           const diff = prev.waveOffsetY - t.waveOffsetY;
@@ -243,7 +224,6 @@ function TopTubeChandelier() {
           t.waveVelocity += diff * 0.075;
         }
 
-        // Spring restoration and dampening
         const tension = 0.038;
         const damping = 0.89;
         t.waveVelocity -= t.waveOffsetY * tension;
@@ -251,12 +231,10 @@ function TopTubeChandelier() {
         t.waveOffsetY += t.waveVelocity;
       }
 
-      // --- RENDER WIRE STRINGS & METALLIC TUBES ---
       tubes.forEach((t) => {
         const tipX = t.baseTipX;
         const tipY = t.baseTipY + t.waveOffsetY;
 
-        // 1. Fine Wire Cable
         ctx.beginPath();
         ctx.moveTo(t.anchorX, t.anchorY);
         const midY = (t.anchorY + tipY) / 2;
@@ -270,15 +248,12 @@ function TopTubeChandelier() {
         ctx.lineWidth = 0.4 + t.scale3D * 0.4;
         ctx.stroke();
 
-        // 2. Render Metallic Tube at Tip
         ctx.save();
         ctx.translate(tipX, tipY);
 
-        // Connector Cap
         ctx.fillStyle = t.colorType === "gold" ? "#D4AF37" : "#A0A8B0";
         ctx.fillRect(-0.75, -4, 1.5, 4);
 
-        // Metallic Tube Body
         drawMetallicTube(ctx, t.tubeWidth, t.tubeLength, t.colorType);
 
         ctx.restore();
@@ -463,11 +438,11 @@ const whyChooseUs = [
 export default function About() {
   return (
     <main className="bg-[#080808] text-white min-h-screen font-sans overflow-hidden">
-      {/* =========================================================
-          HERO SECTION WITH 3D CANVAS CHANDELIER
-      ========================================================= */}
+      {/* Glassmorphic Navbar present across all nested routes */}
+      <Navbar />
+
+      {/* HERO SECTION WITH 3D CANVAS CHANDELIER */}
       <section className="relative min-h-screen flex items-center justify-center pt-20 pb-16">
-        {/* Background Image & Ambient Overlays */}
         <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
           {aboutBg && (
             <img
@@ -480,7 +455,6 @@ export default function About() {
           <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-amber-500/10 blur-[150px] rounded-full z-10" />
         </div>
 
-        {/* 3D Upside-Down Spherical Bowl Tube Chandelier */}
         <TopTubeChandelier />
 
         <div className="relative z-20 max-w-6xl mx-auto px-6 text-center pt-[200px] md:pt-[240px]">
@@ -507,20 +481,18 @@ export default function About() {
               >
                 Plan Your Wedding
               </Link>
-              <a
-                href="/contact"
+              <Link
+                to="/contact"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-amber-500/30 bg-white/5 hover:bg-white/10 text-amber-200 transition"
               >
                 Contact SKS
-              </a>
+              </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* =========================================================
-          ABOUT SKS INTRODUCTION
-      ========================================================= */}
+      {/* ABOUT SKS INTRODUCTION */}
       <section className="py-20 border-t border-amber-500/10 bg-[#0c0c0c]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-12 gap-12 items-center">
@@ -557,12 +529,10 @@ export default function About() {
               className="md:col-span-5 relative"
             >
               <div className="absolute -inset-2 bg-gradient-to-tr from-amber-500/20 to-orange-500/20 blur-2xl rounded-3xl" />
-              {/* Changed aspect ratio to aspect-[3/4] to match portrait photos */}
               <div className="relative aspect-[3/4] min-h-[420px] rounded-2xl overflow-hidden border border-amber-500/20 bg-black/60 flex items-center justify-center p-6 text-center">
                 <img
                   src={sujeeshImg}
                   alt="SKS Wedding Atmosphere"
-                  /* Changed to object-top so the head/face is never cropped out */
                   className="absolute inset-0 w-full h-full object-cover object-top opacity-60"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
@@ -582,9 +552,8 @@ export default function About() {
           </div>
         </div>
       </section>
-      {/* =========================================================
-          OUR WEDDING PLANNING SERVICES
-      ========================================================= */}
+
+      {/* OUR WEDDING PLANNING SERVICES */}
       <section className="py-24 bg-[#080808]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -628,9 +597,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* =========================================================
-          THE TEAM BEHIND YOUR WEDDING
-      ========================================================= */}
+      {/* THE TEAM BEHIND YOUR WEDDING */}
       <section className="py-24 bg-[#0c0c0c] border-y border-amber-500/10">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
@@ -678,14 +645,6 @@ export default function About() {
               className="lg:col-span-6 text-center"
             >
               <div className="relative rounded-3xl overflow-hidden border border-amber-500/30 bg-black/80 aspect-[4/3] flex flex-col items-center justify-center p-6 shadow-2xl">
-                <img
-                  src="/images/sks-team.jpg"
-                  alt="SKS Wedding Planners Team"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
                 <div className="relative z-10 bg-black/70 backdrop-blur-md p-6 rounded-2xl border border-amber-500/20 max-w-md">
                   <Users size={36} className="mx-auto text-amber-400 mb-3" />
                   <p className="text-lg font-serif font-semibold text-amber-300">
@@ -702,9 +661,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* =========================================================
-          OUR WEDDING PLANNING APPROACH
-      ========================================================= */}
+      {/* OUR WEDDING PLANNING APPROACH */}
       <section className="py-24 bg-[#080808]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -747,9 +704,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* =========================================================
-          KERALA DESTINATION WEDDINGS
-      ========================================================= */}
+      {/* KERALA DESTINATION WEDDINGS */}
       <section className="py-24 bg-[#0c0c0c] border-t border-amber-500/10">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
@@ -816,9 +771,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* =========================================================
-          WHY CHOOSE US
-      ========================================================= */}
+      {/* WHY CHOOSE US */}
       <section className="py-24 bg-[#080808]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -828,6 +781,10 @@ export default function About() {
             <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#D4AF37]">
               Why Choose SKS Wedding Planners
             </h2>
+            <p className="mt-4 text-gray-400 text-base md:text-lg">
+              We bring commitment, local expertise, and attention to detail to
+              every celebration.
+            </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -840,15 +797,15 @@ export default function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.05 }}
-                  className="p-6 rounded-2xl border border-amber-500/15 bg-white/[0.02] hover:bg-amber-500/[0.03] transition"
+                  className="p-8 rounded-2xl border border-amber-500/15 bg-gradient-to-b from-white/[0.03] to-transparent hover:border-amber-500/40 transition group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
-                    <Icon size={20} />
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-6 group-hover:scale-110 transition duration-300">
+                    <Icon size={24} />
                   </div>
-                  <h3 className="text-lg font-serif font-semibold text-white mb-2">
+                  <h3 className="text-xl font-serif font-semibold text-white mb-3 group-hover:text-amber-300 transition">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-gray-400 leading-relaxed">
+                  <p className="text-sm text-gray-400 leading-relaxed">
                     {item.description}
                   </p>
                 </motion.div>

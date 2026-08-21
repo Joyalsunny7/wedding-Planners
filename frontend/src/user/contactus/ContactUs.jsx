@@ -1,44 +1,21 @@
 import React, { useState } from 'react';
-import API from "../../api/axios"; // Import your Axios instance helper
-import Navbar from '../navbar/Navbar'; // <-- Added Navbar import
+import API from "../../api/axios";
+import Navbar from '../navbar/Navbar';
 import orderBg from "../../assets/orderBg.png";
 
 const SKSWeddingPlanners = () => {
   const [formData, setFormData] = useState({
     clientName: '',
+    clientEmail: '',
     phone: '',
-    email: '',
-    eventType: 'Wedding / Reception',
+    location: '', // Added location state field
     eventDate: '',
-    budget: '1.5 lakhs to 3 lakhs',
-    services: [],
     message: ''
   });
 
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-
-  const availableServices = [
-    'Stage & Mandap Decor',
-    'Haldi / Mehendi Theme Setup',
-    'Photography & Videography',
-    'Sangeet / DJ & Sound',
-    'Catering Services',
-    'Beautician / Makeup Artist'
-  ];
-
-  const handleCheckboxChange = (service) => {
-    setFormData((prev) => {
-      const exists = prev.services.includes(service);
-      return {
-        ...prev,
-        services: exists
-          ? prev.services.filter((s) => s !== service)
-          : [...prev.services, service]
-      };
-    });
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,8 +28,7 @@ const SKSWeddingPlanners = () => {
     setErrorMsg("");
 
     try {
-      // POST request to backend API
-      const response = await API.post("/orders/submit-order", formData);
+      const response = await API.post("/inquiries/submit", formData);
 
       if (response.status === 200 || response.status === 201) {
         setSubmitted(true);
@@ -69,10 +45,8 @@ const SKSWeddingPlanners = () => {
 
   return (
     <div className="relative min-h-screen">
-      {/* Glassmorphic Navbar present across all nested routes */}
       <Navbar />
 
-      {/* Repeating Damask Background Layer */}
       <div 
         className="fixed inset-0 bg-repeat bg-center opacity-30 pointer-events-none z-0"
         style={{ 
@@ -81,16 +55,13 @@ const SKSWeddingPlanners = () => {
         }}
       />
 
-      {/* Dark Overlay for Readability */}
       <div className="fixed inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80 pointer-events-none z-0" />
 
-      {/* Background Ambient Glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px]" />
       </div>
 
       <div style={styles.page}>
-        {/* Header */}
         <header style={styles.header}>
           <div style={styles.badge}>SKS - the Wedding Planners</div>
           <h1 style={styles.title}>Crafting Your Dream Wedding</h1>
@@ -100,7 +71,6 @@ const SKSWeddingPlanners = () => {
         </header>
 
         <div style={styles.grid}>
-          {/* Contact & Business Info */}
           <div style={styles.infoColumn}>
             <div style={styles.cardDark}>
               <h2 style={styles.cardHeader}>Get in Touch</h2>
@@ -144,7 +114,6 @@ const SKSWeddingPlanners = () => {
             </div>
           </div>
 
-          {/* Planning & Quote Form */}
           <div style={styles.formColumn}>
             <div style={styles.cardLight}>
               {submitted ? (
@@ -186,103 +155,66 @@ const SKSWeddingPlanners = () => {
                     />
                   </div>
 
-                  <div style={styles.row}>
-                    <div style={{ ...styles.formGroup, flex: 1 }}>
-                      <label style={styles.label}>Phone / Mobile *</label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        placeholder="10-digit mobile number"
-                        required
-                        style={styles.input}
-                      />
-                    </div>
-
-                    <div style={{ ...styles.formGroup, flex: 1 }}>
-                      <label style={styles.label}>Email Address</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="name@example.com"
-                        style={styles.input}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={styles.row}>
-                    <div style={{ ...styles.formGroup, flex: 1 }}>
-                      <label style={styles.label}>Event Type</label>
-                      <select
-                        name="eventType"
-                        value={formData.eventType}
-                        onChange={handleChange}
-                        style={styles.input}
-                      >
-                        <option value="Wedding / Reception">Wedding / Reception</option>
-                        <option value="Engagement">Engagement Ceremony</option>
-                        <option value="Sangeet / Mehendi">Sangeet / Mehendi</option>
-                        <option value="Haldi Ceremony">Haldi Ceremony</option>
-                        <option value="House Warming / Other">House Warming / Other</option>
-                      </select>
-                    </div>
-
-                    <div style={{ ...styles.formGroup, flex: 1 }}>
-                      <label style={styles.label}>Expected Budget Range</label>
-                      <select
-                        name="budget"
-                        value={formData.budget}
-                        onChange={handleChange}
-                        style={styles.input}
-                      >
-                        <option value="Below 50k">Below ₹50,000</option>
-                        <option value="50k to 1.5 lakhs">₹50,000 - ₹1.5 Lakhs</option>
-                        <option value="1.5 lakhs to 3 lakhs">₹1.5 Lakhs - ₹3 Lakhs</option>
-                        <option value="3 lakhs to 5 lakhs">₹3 Lakhs - ₹5 Lakhs</option>
-                        <option value="Above 5 lakhs">Above ₹5 Lakhs</option>
-                      </select>
-                    </div>
-                  </div>
-
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Event Date</label>
+                    <label style={styles.label}>Email Address *</label>
                     <input
-                      type="date"
-                      name="eventDate"
-                      value={formData.eventDate}
+                      type="email"
+                      name="clientEmail"
+                      value={formData.clientEmail}
                       onChange={handleChange}
+                      placeholder="e.g. neeraj@example.com"
+                      required
                       style={styles.input}
                     />
                   </div>
 
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Services Needed</label>
-                    <div style={styles.checkboxGrid}>
-                      {availableServices.map((service) => (
-                        <label key={service} style={styles.checkboxLabel}>
-                          <input
-                            type="checkbox"
-                            checked={formData.services.includes(service)}
-                            onChange={() => handleCheckboxChange(service)}
-                            style={{ marginRight: '8px' }}
-                          />
-                          {service}
-                        </label>
-                      ))}
-                    </div>
+                    <label style={styles.label}>Phone / Mobile *</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="10-digit mobile number"
+                      required
+                      style={styles.input}
+                    />
                   </div>
 
                   <div style={styles.formGroup}>
-                    <label style={styles.label}>Additional Requirements / Venue Notes</label>
+                    <label style={styles.label}>Event Location / Venue *</label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="e.g. Grand Auditorium, Ernakulam"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Event Date *</label>
+                    <input
+                      type="date"
+                      name="eventDate"
+                      value={formData.eventDate}
+                      onChange={handleChange}
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Message / Notes *</label>
                     <textarea
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
-                      placeholder="Tell us about your expected guest count, venue preferences, or specific decoration themes..."
+                      placeholder="Tell us about your requirements or preferences..."
                       rows="4"
+                      required
                       style={{ ...styles.input, resize: 'vertical' }}
                     />
                   </div>
@@ -314,7 +246,7 @@ const styles = {
     zIndex: 10,
     minHeight: '100vh',
     padding: '40px 20px',
-    paddingTop: '80px', // Added top padding so content doesn't hide behind fixed navbar
+    paddingTop: '80px',
     fontFamily: "'Segoe UI', Roboto, sans-serif"
   },
   header: {
@@ -425,10 +357,6 @@ const styles = {
     fontSize: '13px',
     lineHeight: '1.8'
   },
-  row: {
-    display: 'flex',
-    gap: '16px'
-  },
   formGroup: {
     marginBottom: '16px'
   },
@@ -447,23 +375,8 @@ const styles = {
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box',
-    backgroundColor: '#FAF8F5'
-  },
-  checkboxGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '10px',
     backgroundColor: '#FAF8F5',
-    padding: '12px',
-    borderRadius: '6px',
-    border: '1px solid #E0D6CE'
-  },
-  checkboxLabel: {
-    fontSize: '13px',
-    color: '#444',
-    display: 'flex',
-    alignItems: 'center',
-    cursor: 'pointer'
+    color: '#2C1810'
   },
   btn: {
     width: '100%',
