@@ -39,15 +39,32 @@ export default function OrderForm({ user }) {
     });
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMsg("");
+
+    // 1. Check if the user is logged in before allowing submission
+    const storedSession = 
+      localStorage.getItem('user_session') || 
+      localStorage.getItem('userInfo') || 
+      localStorage.getItem('user') || 
+      localStorage.getItem('token');
+
+    if (!storedSession) {
+      setErrorMsg("You must be signed in to submit an order request.");
+      // Optional: Automatically navigate to login after a brief pause or let them click sign-in
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1500);
+      return;
+    }
+
+    setLoading(true);
 
     try {
       // Direct POST request via your API client
       // Authorization token is automatically included in headers via Axios interceptor
-      const response = await API.post("/orders/submit-order", formData);
+      const response = await API.post("/user/orders/submit-order", formData);
 
       if (response.status === 200 || response.status === 201) {
         setSubmitted(true);

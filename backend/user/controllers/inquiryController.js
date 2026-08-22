@@ -3,24 +3,33 @@ const nodemailer = require('nodemailer');
 
 const submitInquiry = async (req, res) => {
   try {
+    // 1. Check if the user is authenticated via middleware
+    if (!req.user || (!req.user._id && !req.user.id)) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Access denied. You must be logged in to submit an inquiry." 
+      });
+    }
+
     const { clientName, clientEmail, phone, location, eventDate, message } = req.body;
 
     if (!clientName || !clientEmail || !phone || !location || !eventDate || !message) {
       return res.status(400).json({ message: "Please fill in all required fields." });
     }
 
-    // 1. Save the inquiry to MongoDB first
+    // 2. Save the inquiry to MongoDB, optionally including the userId
     const newInquiry = new Inquiry({
       clientName,
       clientEmail,
       phone,
       location,
       eventDate,
-      message
+      message,
+      userId: req.user._id || req.user.id // Links inquiry to logged-in user if your schema supports it
     });
     await newInquiry.save();
 
-    // 2. Initialize Nodemailer transporter
+    // 3. Initialize Nodemailer transporter
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
@@ -46,7 +55,7 @@ const submitInquiry = async (req, res) => {
       `
     };
 
-    // 3. Send email notification
+    // 4. Send email notification
     await transporter.sendMail(mailOptions);
 
     return res.status(201).json({ success: true, message: "Inquiry saved and sent successfully!" });

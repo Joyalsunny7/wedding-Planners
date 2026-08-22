@@ -1,8 +1,17 @@
 const router = require('express').Router();
 const nodemailer = require('nodemailer');
+const verifyToken = require('./authMiddleware'); // Adjust the path to your auth middleware
 
-router.post('/submit', async (req, res) => {
+router.post('/submit', verifyToken, async (req, res) => {
   try {
+    // 1. Ensure the user exists from the token
+    if (!req.user || (!req.user._id && !req.user.id)) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Access denied. You must be logged in to submit an inquiry." 
+      });
+    }
+
     // Destructured 'location' along with the other fields from req.body
     const { clientName, clientEmail, phone, location, eventDate, message } = req.body;
 
@@ -23,7 +32,7 @@ router.post('/submit', async (req, res) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: 'joyalsunny7117@gmail.com', // Replace with your real alternate email for testing if needed
+      to: 'joyalsunny7117@gmail.com',
       subject: `New Wedding Inquiry from ${clientName}`,
       html: `
         <h2>New Event Inquiry Received</h2>

@@ -1,17 +1,24 @@
-import axios from "axios";
+import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api/user', 
+  baseURL: 'http://localhost:5000/api', // Make sure this matches your backend URL
 });
 
-// Interceptor to attach JWT token to every request automatically
-API.interceptors.request.use((config) => {
-  const session = localStorage.getItem('user_session');
-  if (session) {
-    const { token } = JSON.parse(session);
-    config.headers.Authorization = `Bearer ${token}`;
+// Add a request interceptor to include the auth token automatically
+API.interceptors.request.use(
+  (config) => {
+    // Check localStorage for the token (adjust 'token' or 'userInfo' based on what your login saves)
+    const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('userInfo'))?.token;
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 export default API;

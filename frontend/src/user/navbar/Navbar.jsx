@@ -1,14 +1,51 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ShoppingCart, User, LogOut } from "lucide-react";
 import logo from "../../assets/logo1.png"; // Adjust path to your logo as needed
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  // Check localStorage for various possible session keys on component mount
+  useEffect(() => {
+    const checkUserSession = () => {
+      // Check common keys your login controller might be using
+      const sessionKeys = ['user_session', 'userInfo', 'user', 'currentUser'];
+      
+      for (const key of sessionKeys) {
+        const storedData = localStorage.getItem(key);
+        if (storedData) {
+          try {
+            const parsed = JSON.parse(storedData);
+            // If it's an object with a name or username, use it
+            if (parsed && (parsed.name || parsed.username || parsed.email)) {
+              setUser(parsed);
+              return;
+            } else if (typeof parsed === 'string') {
+              setUser({ name: parsed });
+              return;
+            }
+          } catch (e) {
+            // If it's a raw string token or name stored directly
+            setUser({ name: storedData });
+            return;
+          }
+        }
+      }
+    };
+
+    checkUserSession();
+  }, []);
 
   const handleLogout = () => {
-    // Clear the stored user session to expire the session
+    // Clear all potential session storage keys on logout
     localStorage.removeItem('user_session');
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('user');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    setUser(null);
     
     // Redirect to login page
     navigate('/login'); 
@@ -44,28 +81,16 @@ export default function Navbar() {
 
         {/* Center Section: Navigation Links */}
         <div className="hidden md:flex items-center space-x-6 font-serif text-xs uppercase tracking-widest text-amber-100/90">
-          <Link
-            to="/"
-            className="hover:text-amber-300 transition-colors drop-shadow"
-          >
+          <Link to="/" className="hover:text-amber-300 transition-colors drop-shadow">
             Home
           </Link>
-          <Link
-            to="/order"
-            className="hover:text-amber-300 transition-colors drop-shadow"
-          >
+          <Link to="/order" className="hover:text-amber-300 transition-colors drop-shadow">
             Order
           </Link>
-          <Link
-            to="/about"
-            className="hover:text-amber-300 transition-colors drop-shadow"
-          >
+          <Link to="/about" className="hover:text-amber-300 transition-colors drop-shadow">
             About
           </Link>
-          <Link
-            to="/contact"
-            className="hover:text-amber-300 transition-colors drop-shadow"
-          >
+          <Link to="/contact" className="hover:text-amber-300 transition-colors drop-shadow">
             Contact Us
           </Link>
         </div>
@@ -81,31 +106,49 @@ export default function Navbar() {
             <ShoppingCart size={18} />
           </button>
 
-          {/* User Profile Button */}
-          <button
-            onClick={() => navigate("/profile")}
-            title="User Profile"
-            className="p-1.5 text-amber-200/80 hover:text-amber-300 hover:bg-amber-500/10 rounded-full transition-colors cursor-pointer"
-          >
-            <User size={18} />
-          </button>
+          {/* Conditional Rendering based on Login State */}
+          {user ? (
+            <div className="flex items-center space-x-3">
+              {/* Welcome Message & User Name */}
+              <span className="hidden lg:inline-block font-serif text-xs text-amber-200 tracking-wider">
+                Welcome, <strong className="text-amber-300">{user.name || user.username || user.email || 'User'}</strong>
+              </span>
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            title="Logout"
-            className="p-1.5 text-amber-200/80 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors cursor-pointer"
-          >
-            <LogOut size={18} />
-          </button>
+              {/* User Profile Button / Icon */}
+              <button
+                onClick={() => navigate("/profile")}
+                title="User Profile"
+                className="flex items-center space-x-1.5 p-1 text-amber-200/90 hover:text-amber-300 hover:bg-amber-500/10 rounded-full transition-colors cursor-pointer"
+              >
+                {user.profilePic ? (
+                  <img 
+                    src={user.profilePic} 
+                    alt={user.name} 
+                    className="w-6 h-6 rounded-full object-cover border border-amber-400/40" 
+                  />
+                ) : (
+                  <User size={18} />
+                )}
+              </button>
 
-          {/* Sign In Button */}
-          <button
-            onClick={() => navigate("/login")}
-            className="px-3 py-1.5 bg-amber-600/70 hover:bg-amber-500/90 text-[#1a120b] font-serif font-bold text-[11px] tracking-widest uppercase rounded-sm transition-all shadow-md backdrop-blur-sm cursor-pointer border border-amber-300/30"
-          >
-            Sign In
-          </button>
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                title="Logout"
+                className="p-1.5 text-amber-200/80 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors cursor-pointer"
+              >
+                <LogOut size={18} />
+              </button>
+            </div>
+          ) : (
+            /* Sign In Button (Shown only when logged out) */
+            <button
+              onClick={() => navigate("/login")}
+              className="px-3 py-1.5 bg-amber-600/70 hover:bg-amber-500/90 text-[#1a120b] font-serif font-bold text-[11px] tracking-widest uppercase rounded-sm transition-all shadow-md backdrop-blur-sm cursor-pointer border border-amber-300/30"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </nav>
     </header>

@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import API from "../../api/axios";
-import Navbar from '../navbar/Navbar';
+import Navbar from "../navbar/Navbar";
 import orderBg from "../../assets/orderBg.png";
 
 const SKSWeddingPlanners = () => {
   const [formData, setFormData] = useState({
-    clientName: '',
-    clientEmail: '',
-    phone: '',
-    location: '', // Added location state field
-    eventDate: '',
-    message: ''
+    clientName: "",
+    clientEmail: "",
+    phone: "",
+    location: "",
+    eventDate: "",
+    message: "",
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -24,11 +24,27 @@ const SKSWeddingPlanners = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMsg("");
 
+    // 1. Check if the user is logged in before allowing inquiry submission
+    const storedSession =
+      localStorage.getItem("user_session") ||
+      localStorage.getItem("userInfo") ||
+      localStorage.getItem("user") ||
+      localStorage.getItem("token");
+
+    if (!storedSession) {
+      setErrorMsg("You must be signed in to submit an inquiry.");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1500);
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const response = await API.post("/inquiries/submit", formData);
+      const response = await API.post("/user/inquiries/submit", formData);
 
       if (response.status === 200 || response.status === 201) {
         setSubmitted(true);
@@ -36,7 +52,8 @@ const SKSWeddingPlanners = () => {
     } catch (err) {
       console.error("Order submit error:", err);
       setErrorMsg(
-        err.response?.data?.message || "Failed to submit inquiry. Please try again."
+        err.response?.data?.message ||
+          "Failed to submit inquiry. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -47,11 +64,11 @@ const SKSWeddingPlanners = () => {
     <div className="relative min-h-screen">
       <Navbar />
 
-      <div 
+      <div
         className="fixed inset-0 bg-repeat bg-center opacity-30 pointer-events-none z-0"
-        style={{ 
+        style={{
           backgroundImage: `url(${orderBg})`,
-          backgroundSize: '400px'
+          backgroundSize: "400px",
         }}
       />
 
@@ -66,7 +83,8 @@ const SKSWeddingPlanners = () => {
           <div style={styles.badge}>SKS - the Wedding Planners</div>
           <h1 style={styles.title}>Crafting Your Dream Wedding</h1>
           <p style={styles.subtitle}>
-            From traditional Mandap setups to complete event execution, share your vision with us and get a customized quote for your special day.
+            From traditional Mandap setups to complete event execution, share
+            your vision with us and get a customized quote for your special day.
           </p>
         </header>
 
@@ -74,7 +92,10 @@ const SKSWeddingPlanners = () => {
           <div style={styles.infoColumn}>
             <div style={styles.cardDark}>
               <h2 style={styles.cardHeader}>Get in Touch</h2>
-              <p style={styles.cardSub}>Reach out directly to discuss themes, venue availability, and bookings.</p>
+              <p style={styles.cardSub}>
+                Reach out directly to discuss themes, venue availability, and
+                bookings.
+              </p>
 
               <div style={styles.infoGroup}>
                 <span style={styles.infoLabel}>Phone / WhatsApp</span>
@@ -92,10 +113,10 @@ const SKSWeddingPlanners = () => {
 
               <div style={styles.infoGroup}>
                 <span style={styles.infoLabel}>Main Office Location</span>
-                <a 
-                  href="https://maps.app.goo.gl/C38dXac68dZX6xJb7?g_st=ac" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href="https://maps.app.goo.gl/C38dXac68dZX6xJb7?g_st=ac"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={styles.mapBtn}
                 >
                   📍 View Location on Google Maps
@@ -118,29 +139,42 @@ const SKSWeddingPlanners = () => {
             <div style={styles.cardLight}>
               {submitted ? (
                 <div style={styles.successState}>
-                  <h3 style={{ color: '#15803d', margin: '0 0 8px 0' }}>Booking Inquiry Received!</h3>
-                  <p style={{ color: '#166534', margin: 0, fontSize: '14px' }}>
-                    Thank you, <strong>{formData.clientName}</strong>. The team at SKS Wedding Planners will contact you shortly to review your event requirement.
+                  <h3 style={{ color: "#15803d", margin: "0 0 8px 0" }}>
+                    Booking Inquiry Received!
+                  </h3>
+                  <p style={{ color: "#166534", margin: 0, fontSize: "14px" }}>
+                    Thank you, <strong>{formData.clientName}</strong>. The team
+                    at SKS Wedding Planners will contact you shortly to review
+                    your event requirement.
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}
-                    style={{ ...styles.btn, marginTop: '16px', backgroundColor: '#166534' }}
+                    style={{
+                      ...styles.btn,
+                      marginTop: "16px",
+                      backgroundColor: "#166534",
+                    }}
                   >
                     Submit Another Inquiry
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit}>
-                  <h2 style={{ ...styles.cardHeader, color: '#1c1917' }}>Plan Your Event</h2>
-                  <p style={{ color: '#78716c', fontSize: '14px', marginBottom: '20px' }}>
-                    Fill out your details to receive an estimated quote and availability details.
+                  <h2 style={{ ...styles.cardHeader, color: "#1c1917" }}>
+                    Plan Your Event
+                  </h2>
+                  <p
+                    style={{
+                      color: "#78716c",
+                      fontSize: "14px",
+                      marginBottom: "20px",
+                    }}
+                  >
+                    Fill out your details to receive an estimated quote and
+                    availability details.
                   </p>
 
-                  {errorMsg && (
-                    <div style={styles.errorState}>
-                      {errorMsg}
-                    </div>
-                  )}
+                  {errorMsg && <div style={styles.errorState}>{errorMsg}</div>}
 
                   <div style={styles.formGroup}>
                     <label style={styles.label}>Your Name *</label>
@@ -215,20 +249,22 @@ const SKSWeddingPlanners = () => {
                       placeholder="Tell us about your requirements or preferences..."
                       rows="4"
                       required
-                      style={{ ...styles.input, resize: 'vertical' }}
+                      style={{ ...styles.input, resize: "vertical" }}
                     />
                   </div>
 
-                  <button 
-                    type="submit" 
-                    disabled={loading} 
-                    style={{ 
-                      ...styles.btn, 
-                      opacity: loading ? 0.7 : 1, 
-                      cursor: loading ? 'not-allowed' : 'pointer' 
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                      ...styles.btn,
+                      opacity: loading ? 0.7 : 1,
+                      cursor: loading ? "not-allowed" : "pointer",
                     }}
                   >
-                    {loading ? "Submitting Inquiry..." : "Submit Inquiry & Get Quote"}
+                    {loading
+                      ? "Submitting Inquiry..."
+                      : "Submit Inquiry & Get Quote"}
                   </button>
                 </form>
               )}
@@ -242,171 +278,171 @@ const SKSWeddingPlanners = () => {
 
 const styles = {
   page: {
-    position: 'relative',
+    position: "relative",
     zIndex: 10,
-    minHeight: '100vh',
-    padding: '40px 20px',
-    paddingTop: '80px',
-    fontFamily: "'Segoe UI', Roboto, sans-serif"
+    minHeight: "100vh",
+    padding: "40px 20px",
+    paddingTop: "80px",
+    fontFamily: "'Segoe UI', Roboto, sans-serif",
   },
   header: {
-    textAlign: 'center',
-    maxWidth: '700px',
-    margin: '0 auto 40px auto'
+    textAlign: "center",
+    maxWidth: "700px",
+    margin: "0 auto 40px auto",
   },
   badge: {
-    display: 'inline-block',
-    backgroundColor: '#8B4513',
-    color: '#FFF',
-    fontSize: '12px',
-    fontWeight: '700',
-    letterSpacing: '1px',
-    padding: '4px 14px',
-    borderRadius: '20px',
-    textTransform: 'uppercase',
-    marginBottom: '12px'
+    display: "inline-block",
+    backgroundColor: "#8B4513",
+    color: "#FFF",
+    fontSize: "12px",
+    fontWeight: "700",
+    letterSpacing: "1px",
+    padding: "4px 14px",
+    borderRadius: "20px",
+    textTransform: "uppercase",
+    marginBottom: "12px",
   },
   title: {
-    fontSize: '32px',
-    color: '#F59E0B',
-    margin: '0 0 10px 0'
+    fontSize: "32px",
+    color: "#F59E0B",
+    margin: "0 0 10px 0",
   },
   subtitle: {
-    color: '#D1D5DB',
-    fontSize: '15px',
-    lineHeight: '1.5'
+    color: "#D1D5DB",
+    fontSize: "15px",
+    lineHeight: "1.5",
   },
   grid: {
-    maxWidth: '1000px',
-    margin: '0 auto',
-    display: 'flex',
-    gap: '24px',
-    flexWrap: 'wrap'
+    maxWidth: "1000px",
+    margin: "0 auto",
+    display: "flex",
+    gap: "24px",
+    flexWrap: "wrap",
   },
   infoColumn: {
-    flex: '1 1 320px'
+    flex: "1 1 320px",
   },
   formColumn: {
-    flex: '2 1 450px'
+    flex: "2 1 450px",
   },
   cardDark: {
-    backgroundColor: 'rgba(44, 24, 16, 0.9)',
-    backdropFilter: 'blur(8px)',
-    color: '#FFF',
-    padding: '32px',
-    borderRadius: '12px',
-    height: '100%',
-    boxSizing: 'border-box',
-    border: '1px solid rgba(232, 210, 193, 0.2)'
+    backgroundColor: "rgba(44, 24, 16, 0.9)",
+    backdropFilter: "blur(8px)",
+    color: "#FFF",
+    padding: "32px",
+    borderRadius: "12px",
+    height: "100%",
+    boxSizing: "border-box",
+    border: "1px solid rgba(232, 210, 193, 0.2)",
   },
   cardLight: {
-    backgroundColor: '#FFF',
-    padding: '32px',
-    borderRadius: '12px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-    boxSizing: 'border-box'
+    backgroundColor: "#FFF",
+    padding: "32px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+    boxSizing: "border-box",
   },
   cardHeader: {
-    fontSize: '22px',
-    margin: '0 0 8px 0',
-    color: '#E8D2C1'
+    fontSize: "22px",
+    margin: "0 0 8px 0",
+    color: "#E8D2C1",
   },
   cardSub: {
-    color: '#A0928B',
-    fontSize: '13px',
-    marginBottom: '24px'
+    color: "#A0928B",
+    fontSize: "13px",
+    marginBottom: "24px",
   },
   infoGroup: {
-    marginBottom: '18px'
+    marginBottom: "18px",
   },
   infoLabel: {
-    fontSize: '11px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.8px',
-    color: '#D4B29E',
-    display: 'block',
-    marginBottom: '4px'
+    fontSize: "11px",
+    textTransform: "uppercase",
+    letterSpacing: "0.8px",
+    color: "#D4B29E",
+    display: "block",
+    marginBottom: "4px",
   },
   infoLink: {
-    color: '#F59E0B',
-    fontSize: '15px',
-    fontWeight: '600',
-    textDecoration: 'none'
+    color: "#F59E0B",
+    fontSize: "15px",
+    fontWeight: "600",
+    textDecoration: "none",
   },
   mapBtn: {
-    display: 'inline-block',
-    marginTop: '4px',
-    color: '#F59E0B',
-    fontSize: '13px',
-    fontWeight: '600',
-    textDecoration: 'underline'
+    display: "inline-block",
+    marginTop: "4px",
+    color: "#F59E0B",
+    fontSize: "13px",
+    fontWeight: "600",
+    textDecoration: "underline",
   },
   divider: {
-    borderColor: '#42281D',
-    margin: '24px 0'
+    borderColor: "#42281D",
+    margin: "24px 0",
   },
   servicesTitle: {
-    fontSize: '14px',
-    color: '#E8D2C1',
-    marginBottom: '12px'
+    fontSize: "14px",
+    color: "#E8D2C1",
+    marginBottom: "12px",
   },
   serviceList: {
-    paddingLeft: '18px',
+    paddingLeft: "18px",
     margin: 0,
-    color: '#D4B29E',
-    fontSize: '13px',
-    lineHeight: '1.8'
+    color: "#D4B29E",
+    fontSize: "13px",
+    lineHeight: "1.8",
   },
   formGroup: {
-    marginBottom: '16px'
+    marginBottom: "16px",
   },
   label: {
-    display: 'block',
-    fontSize: '13px',
-    fontWeight: '600',
-    color: '#2C1810',
-    marginBottom: '6px'
+    display: "block",
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#2C1810",
+    marginBottom: "6px",
   },
   input: {
-    width: '100%',
-    padding: '10px 12px',
-    border: '1px solid #E0D6CE',
-    borderRadius: '6px',
-    fontSize: '14px',
-    outline: 'none',
-    boxSizing: 'border-box',
-    backgroundColor: '#FAF8F5',
-    color: '#2C1810'
+    width: "100%",
+    padding: "10px 12px",
+    border: "1px solid #E0D6CE",
+    borderRadius: "6px",
+    fontSize: "14px",
+    outline: "none",
+    boxSizing: "border-box",
+    backgroundColor: "#FAF8F5",
+    color: "#2C1810",
   },
   btn: {
-    width: '100%',
-    backgroundColor: '#8B4513',
-    color: '#FFF',
-    padding: '12px',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '15px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    marginTop: '8px'
+    width: "100%",
+    backgroundColor: "#8B4513",
+    color: "#FFF",
+    padding: "12px",
+    border: "none",
+    borderRadius: "6px",
+    fontSize: "15px",
+    fontWeight: "600",
+    cursor: "pointer",
+    marginTop: "8px",
   },
   successState: {
-    padding: '24px',
-    backgroundColor: '#F0FDF4',
-    border: '1px solid #BBF7D0',
-    borderRadius: '8px',
-    textAlign: 'center'
+    padding: "24px",
+    backgroundColor: "#F0FDF4",
+    border: "1px solid #BBF7D0",
+    borderRadius: "8px",
+    textAlign: "center",
   },
   errorState: {
-    padding: '12px',
-    marginBottom: '16px',
-    backgroundColor: '#FEF2F2',
-    border: '1px solid #FECACA',
-    borderRadius: '6px',
-    color: '#991B1B',
-    fontSize: '13px',
-    textAlign: 'center'
-  }
+    padding: "12px",
+    marginBottom: "16px",
+    backgroundColor: "#FEF2F2",
+    border: "1px solid #FECACA",
+    borderRadius: "6px",
+    color: "#991B1B",
+    fontSize: "13px",
+    textAlign: "center",
+  },
 };
 
 export default SKSWeddingPlanners;
