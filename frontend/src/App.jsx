@@ -8,6 +8,7 @@ import Register from "./user/authpage/register/Register";
 import OTP from "./user/authpage/otp/OTP";
 import BookCover from "./user/authpage/bookcover/BookCover";
 import About from "./user/homepage/About"
+import Cart from "./user/cartpage/CartPage"
 function LoginWrapper() {
   const navigate = useNavigate();
 
@@ -51,6 +52,8 @@ export default function App() {
         <Route path="/register" element={<BookCover />} />
         
         <Route path="/verify-otp" element={<OTP />} />
+
+        <Route path="/cart" element={<Cart />} />
       </Routes>
     </Router>
   );
