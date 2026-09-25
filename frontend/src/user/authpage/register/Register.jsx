@@ -19,7 +19,7 @@ export default function Register({ onSwitchToLogin }) {
     setLoading(true);
 
     try {
-      await API.post("/auth/register", formData);
+      await API.post("/user/auth/register", formData);
       // Move to OTP verification step upon successful register request
       setStep("otp");
     } catch (err) {
@@ -62,7 +62,7 @@ export default function Register({ onSwitchToLogin }) {
     setLoading(true);
 
     try {
-      const response = await API.post("/auth/verify-otp", { 
+      const response = await API.post("/user/auth/verify-otp", { 
         email: formData.email, 
         otp: enteredOtp 
       });

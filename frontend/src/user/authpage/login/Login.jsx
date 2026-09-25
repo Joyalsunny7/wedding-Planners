@@ -15,7 +15,7 @@ export default function Login({ onSwitchToRegister }) {
     setLoading(true);
 
     try {
-      const response = await API.post('/auth/login', formData);
+      const response = await API.post('/user/auth/login', formData);
       const token = response.data.token || response.data?.data?.token;
       const user = response.data.user || response.data?.data?.user;
 
